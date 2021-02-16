@@ -21,7 +21,13 @@ function onButtonClick(btn_click) {
     if (btn_click.target.innerHTML === 'C') {
         text.innerHTML = '0';
     } else if (btn_click.target.innerHTML === '=') {
-        text.innerHTML = eval(text.innerHTML);
+        try{
+            text.innerHTML = eval(text.innerHTML);
+        }
+        catch{
+            text.innerHTML = 'invalid input';
+        }
+        
     } else if (text.innerHTML === '0' && btn_click.target.innerHTML !== '.') {
         text.innerHTML = btn_click.target.innerHTML;
     } else {
