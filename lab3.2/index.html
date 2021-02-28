@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo vue.js Abbazov</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+</head>
+<body>
+    <div id="app">
+        <header class="header">
+            <h1 class="title"> Чеклист</h1>
+            <input type="text" 
+                    placeholder="Введите задачу" 
+                    class="input" 
+                    :value="valueInput"
+                    @input="handleInput"
+                    @keyup.enter="add()">
+            <input type="submit" value="Добавить" 
+                    @click="add()">
+        </header>
+        <main>
+            <ul class="list">
+                <li class="task" v-for="(task, index) in tasks" :key="task.id">
+                    <input type="checkbox" class="checkbox"
+                            @change="check(index)">
+                    <div class="text">{{task.title}}</div>
+                    <button class="delBtn" @click="del(index, 'work')">X</button>
+                </li>
+                <li class="task" v-for="(task, index) in completeTasks" :key="task.id">
+                    <div class="text done">{{task.title}}</div>
+                    <button class="delBtn" @click="del(index)">X</button>
+                </li>
+            </ul>
+        </main>
+    </div>
+    
+    <script src="./script/app.js"></script>
+</body>
+</html>
