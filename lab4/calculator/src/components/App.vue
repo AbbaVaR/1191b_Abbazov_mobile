@@ -33,6 +33,7 @@
     },
     methods:{
             input: function(char){
+                this.result = this.result.toString();
                 this.result += char;
             },
             calc: function(){
