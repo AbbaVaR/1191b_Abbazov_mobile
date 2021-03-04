@@ -1,5 +1,5 @@
 <template>
-    <Page>
+    <Page  class="app">
      <ActionBar title="Calculator Abbazov"/>
          <GridLayout class="keyboard" columns="*, *, *, *" rows="*, *, *, *, *, *">
             <Label textWrap="true" class="result" v-model="result" row="0" col="0" colSpan="4"/>/>
@@ -52,6 +52,10 @@
 </script>
 
 <style scoped>
+    .app{
+    background-color: #333333;
+    color: #ffffff;
+    }
     .result{
         text-align: right;
         font-size: 28px;
