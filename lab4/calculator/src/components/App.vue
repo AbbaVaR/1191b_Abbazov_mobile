@@ -39,6 +39,9 @@
             calc: function(){
                 try{
                     this.result = eval(this.result);
+                    if (isNaN(this.result)) {
+                        throw new Error();
+                  }
                 }
                 catch{
                     this.result = 'invalid input';
