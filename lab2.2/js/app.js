@@ -15,6 +15,7 @@ function addTask() {
             checkbox.addEventListener('change', checkTask);
         let text = document.createElement('div');
             text.textContent = input.value;
+            input.value = '';
             text.className = 'text';
         let delbtn = document.createElement('button');
             delbtn.className = 'delBtn';
