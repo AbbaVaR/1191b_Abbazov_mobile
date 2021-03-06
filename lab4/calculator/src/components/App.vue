@@ -54,16 +54,19 @@
 <style scoped>
     .app{
     background-color: #333333;
-    color: #ffffff;
     }
     .result{
         text-align: right;
         font-size: 28px;
         overflow-wrap: break-word;
+        color: #ffffff;
+
     }
     .btn{
         background-color: #808080;
         border-radius: 40%;
+        color: #ffffff;
+
     }
     .btn:active {
          background-color: #696969;
