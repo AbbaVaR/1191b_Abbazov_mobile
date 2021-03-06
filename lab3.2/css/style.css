@@ -11,6 +11,10 @@ body{
     background-color: #2F4F4F;
 }
 
+.input{
+    width: 740px;
+}
+
 .list{
     list-style: none;
     background-color: #F0FFFF;
