@@ -4,9 +4,7 @@
           <StackLayout>
             <TextField v-model="valueInput" @returnPress= "add()"/>
             <ListView for="(task, index) in tasks" :key="index">
-              <v-template>
                 <Label :text="task.title" />
-              </v-template>
             </ListView>
           </StackLayout>
         </ScrollView>
@@ -31,13 +29,13 @@
             });
             this.valueInput = '';
         },
-        del: function(index, type){
-            if (type === 'work' ) this.tasks.splice(index,1);
-            else this.completeTasks.splice(index,1);
-        },
-        check: function(index){    
-            this.completeTasks.push(...this.tasks.splice(index, 1));
-        }
+        // del: function(index, type){
+        //     if (type === 'work' ) this.tasks.splice(index,1);
+        //     else this.completeTasks.splice(index,1);
+        // },
+        // check: function(index){    
+        //     this.completeTasks.push(...this.tasks.splice(index, 1));
+        // }
     }
   }
 </script>
