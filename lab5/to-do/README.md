@@ -1,6 +1,6 @@
-# ToDo
+# To-Do
 
-> to-do app
+> lab 5, to-do app
 
 ## Usage
 
