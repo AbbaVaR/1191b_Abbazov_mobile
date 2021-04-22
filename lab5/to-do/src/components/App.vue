@@ -5,12 +5,12 @@
       <ScrollView orientation="horizontal">
         <ListView  class="task" for="task in tasks">
           <v-template>
-            <WrapLayout>
-            <Button  class="task-text done" v-if="task.done" width="90%">{{task.title}}</Button>
-            <Button  class="task-text" v-else width="90%" @tap= "edit(task.id, task.title) ">{{task.title}}</Button>
-            <Button  class="add-btn" text="\/" width="5%" @tap="taskDone(task.id)" />
-            <Button  class="remove-btn" text="X" width="5%" @tap="remove(task.id)" /> 
-            </WrapLayout>
+            <GridLayout columns="250%, 70, 70">
+            <label  class="task-text done" v-if="task.done" textWrap="true" col="0">{{task.title}}</label>
+            <label  class="task-text" v-else  @tap="edit(task.id, task.title)" textWrap="true" col="0">{{task.title}}</label>
+            <Button  class="btn check-btn" text="\/" @tap="taskDone(task.id)" col="1"/>
+            <Button  class="btn remove-btn" text="X" @tap="remove(task.id)" col="2"/> 
+            </GridLayout>
           </v-template>
         </ListView>
       </ScrollView>
@@ -25,23 +25,12 @@ export default {
   data () {
     return {
       newText: '',
-      tasks: [
-      {
-        id: 1,
-        title: 'asdasdasdsadasd',
-        done: false
-      },
-      {
-        id: 2,
-        title: 'dsadsdasd',
-        done: false
-      },
-      {
-        id: 3,
-        title: 'tyjkl;khhhth',
-        done: false
-      }
-      ]
+      tasks: []
+    }
+  },
+  mounted(){
+    if(ApplicationSettings.getString('tasks')){
+      this.tasks=Object.values(JSON.parse(ApplicationSettings.getString('tasks')));
     }
   },
   methods: {
@@ -54,6 +43,8 @@ export default {
         });
         this.newText = '';
       }
+      let toSave = Object.assign({}, this.tasks);
+      ApplicationSettings.setString('tasks', JSON.stringify(toSave));
     },
     taskDone (id) {
       this.tasks = this.tasks.map(task => {
@@ -64,31 +55,66 @@ export default {
     remove (id) {
       this.tasks = this.tasks.filter(task => task.id !== id);
     },
-    edit(id) {
+    edit(id, old_text) {
+      let new_text;
       prompt({
         title: "Изменение задачи",
         message: "Новая задача:",
         okButtonText: "OK",
         cancelButtonText: "Отмена",
+        defaultText: old_text,
       })
       .then(result => {
          this.tasks.forEach(task => {
-          if (task.id == id ){
-            task.title = result.text  
-          }
-          if (task.title  == "" ){
-             remove(id);
+          if (task.id == id && result.text != ''){
+            task.title = result.text;
           }    
-         }   
-         );    
-      })    
+         });
+      })
+   
     }
   }
 }
 </script>
 
 <style>
+.app{
+    background-color: #333333;
+}
+
+.task-text{
+  margin: 30px 20px;
+  background-color: #424242;
+  border-radius: 10%;
+  color: #000000;
+  text-align: center;
+}
+
 .done {
-  text-decoration: line-through
+  text-decoration: line-through;
+  background-color: #5f5f5f;
+}
+
+.btn{
+  background-color: #e27d01;
+  border-radius: 10%;
+  color: #ffffff;
+  margin: 30px 10px;
+}
+
+.btn:active {
+  background-color: #696969;
+}
+
+.input{
+  background-color: #FF8C00;
+  border-radius: 10%;
+  color: #000000;
+  margin: 50px 30px;
+  text-align: center;
+}
+
+.input:focus{
+    background-color: #e27d01;
 }
 </style>
