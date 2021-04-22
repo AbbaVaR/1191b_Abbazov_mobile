@@ -43,20 +43,28 @@ export default {
         });
         this.newText = '';
       }
-      let toSave = Object.assign({}, this.tasks);
-      ApplicationSettings.setString('tasks', JSON.stringify(toSave));
+      this.save();
     },
+
     taskDone (id) {
       this.tasks = this.tasks.map(task => {
         if (task.id == id) task.done = !task.done;
         return task;
       })
+      this.save();
     },
+
     remove (id) {
       this.tasks = this.tasks.filter(task => task.id !== id);
+      this.save();
     },
+
+    save(){
+      let toSave = Object.assign({}, this.tasks);
+      ApplicationSettings.setString('tasks', JSON.stringify(toSave));
+    },
+    
     edit(id, old_text) {
-      let new_text;
       prompt({
         title: "Изменение задачи",
         message: "Новая задача:",
@@ -68,10 +76,10 @@ export default {
          this.tasks.forEach(task => {
           if (task.id == id && result.text != ''){
             task.title = result.text;
+            this.save();
           }    
          });
       })
-   
     }
   }
 }
