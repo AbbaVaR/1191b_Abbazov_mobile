@@ -4,7 +4,7 @@
         <Label class='city'  :text='listOfItems[this.selectedItem]' @tap='city()'/>
         <ScrollView orientation="vertical"> 
            <StackLayout class='forecast' orientation="vertical">
-              <Image class='img' src="~/res/skc_d.png" stretch="none" /> 
+              <Image class='img' src="~/res/skc_d.png" stretch="none" @tap='check()'/> 
               <label class='text'> Температура: {{weather.fact.temp}}, ощущается: {{weather.fact.feels_like}}</label>
               <label class='text'> Ветер {{weather.fact.wind_speed}} m/c {{weather.fact.wind_dir}}, {{weather.fact.condition}}</label>
               <label class='text'> Давление {{weather.fact.pressure_mm}} мм рт. ст.</label>
@@ -87,7 +87,7 @@ import * as ApplicationSettings from "application-settings";
           },
           { title: "Тавинск",
             toString: () => {
-              return 'Кип';
+              return 'Тавинск';
             },
             latitude: 57.5872222,
             longitude: 71.7202778
@@ -106,7 +106,7 @@ import * as ApplicationSettings from "application-settings";
             }
         },
         imageUrl: '',
-        cities:[]
+        cities:['Ханты-Мансийск', 'Омск', 'Тобольск', 'Усть-Ишим', 'Тевриз', 'Викулово', 'Вагай', 'Дубровное', 'Кип', 'Тавинск']
       }
     },
     mounted(){
@@ -140,10 +140,6 @@ import * as ApplicationSettings from "application-settings";
       },
 
       city(){
-        for(let i = 0; i < 10; i++){
-          this.cities.push(String(this.listOfItems[i]))
-        }
-        console.log(this.cities)
         action("Выберите город:", "отмена", this.cities)
         .then(result => {
            this.selectedItem = this.cities.indexOf(result);
