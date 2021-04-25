@@ -1,8 +1,7 @@
 <template actionBarHidden="true">
     <Page actionBarHidden="true"  class="app">
       <StackLayout>
-        <ListPicker class='city' :items="listOfItems" v-model="selectedItem"  @selectedIndexChange="check" />
-        <!-- <button text="Обновить" @tap="check"/> -->
+        <Label class='city'  :text='listOfItems[this.selectedItem]' @tap='city()'/>
         <ScrollView orientation="vertical"> 
            <StackLayout class='forecast' orientation="vertical">
               <Image class='img' src="~/res/skc_d.png" stretch="none" /> 
@@ -107,14 +106,23 @@ import * as ApplicationSettings from "application-settings";
             }
         },
         imageUrl: '',
+        cities:[]
       }
     },
     mounted(){
       if(ApplicationSettings.getString('weather')){
         this.weather.fact=JSON.parse(ApplicationSettings.getString('weather'));
+        console.log('Погода загружена');
       }
-      this.imageUrl = "https://yastatic.net/weather/i/icons/blueye/color/svg/" + this.weather.fact.icon + ".svg"
-      console.log(this.imageUrl)
+      if(ApplicationSettings.getString('city')){
+        this.selectedItem=JSON.parse(ApplicationSettings.getString('city'));
+        console.log('Место загружено');
+
+      }
+      else{
+        this.city()
+      }
+      this.imageUrl = "https://yastatic.net/weather/i/icons/blueye/color/svg/" + this.weather.fact.icon + ".svg";
     },
     methods:{
       check(){
@@ -126,15 +134,25 @@ import * as ApplicationSettings from "application-settings";
         }).then(
         (response) => {
         this.weather = response.content.toJSON();
-        this.translate()
-        this.save();
+        ApplicationSettings.setString('weather', JSON.stringify(this.weather.fact));        
+        console.log(`Сохранено как: ${JSON.stringify(this.weather)}`)
       });
       },
 
-      save(){
-        ApplicationSettings.setString('weather', JSON.stringify(this.weather.fact));        
-        console.log(`Сохранено как: ${JSON.stringify(this.weather)}`)
-      },
+      city(){
+        for(let i = 0; i < 10; i++){
+          this.cities.push(String(this.listOfItems[i]))
+        }
+        console.log(this.cities)
+        action("Выберите город:", "отмена", this.cities)
+        .then(result => {
+           this.selectedItem = this.cities.indexOf(result);
+           console.log(this.selectedItem )
+           ApplicationSettings.setString('city', JSON.stringify(this.selectedItem));        
+           this.check();
+           
+        });
+      }
     }
   }
 </script>
@@ -162,8 +180,12 @@ import * as ApplicationSettings from "application-settings";
     padding: 40px;
 }
 .city{
-  height: 400px;
-  font-size: 20;
+  font-size: 30;
+  text-align: center;
+  height: 200px;
+  margin: 50px 70px;
+  padding: 50px;
+  border-radius: 40%;
   background-color: #cf7200;
 }
 </style>
