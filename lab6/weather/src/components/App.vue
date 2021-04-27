@@ -4,9 +4,9 @@
         <Label class='city'  :text='listOfItems[this.selectedItem]' @tap='city()'/>
         <ScrollView orientation="vertical"> 
            <StackLayout class='forecast' orientation="vertical">
-              <Image class='img' src="~/res/skc_d.png" stretch="none" @tap='check()'/> 
+              <Image class='img' :src="imagePath" stretch="none" @tap='check()'/> 
               <label class='text'> Температура: {{weather.fact.temp}}, ощущается: {{weather.fact.feels_like}}</label>
-              <label class='text'> Ветер {{weather.fact.wind_speed}} m/c {{weather.fact.wind_dir}}, {{weather.fact.condition}}</label>
+              <label class='text'> Ветер {{weather.fact.wind_speed}} m/c, Влажность {{weather.fact.humidity}}%</label>
               <label class='text'> Давление {{weather.fact.pressure_mm}} мм рт. ст.</label>
            </StackLayout>
         </ScrollView>
@@ -105,7 +105,7 @@ import * as ApplicationSettings from "application-settings";
             pressure_mm	: 0,
             }
         },
-        imageUrl: '',
+        imagePath: '',
         cities:['Ханты-Мансийск', 'Омск', 'Тобольск', 'Усть-Ишим', 'Тевриз', 'Викулово', 'Вагай', 'Дубровное', 'Кип', 'Тавинск']
       }
     },
@@ -117,16 +117,14 @@ import * as ApplicationSettings from "application-settings";
       if(ApplicationSettings.getString('city')){
         this.selectedItem=JSON.parse(ApplicationSettings.getString('city'));
         console.log('Место загружено');
-
       }
       else{
         this.city()
       }
-      this.imageUrl = "https://yastatic.net/weather/i/icons/blueye/color/svg/" + this.weather.fact.icon + ".svg";
+      this.imagePath = '~/res/' + String(this.weather.fact.condition) + '.png';
     },
     methods:{
       check(){
-        this.imageUrl = "https://yastatic.net/weather/i/icons/blueye/color/svg/" + this.weather.fact.icon + ".svg"
         Http.request({
         url: 'https://api.weather.yandex.ru/v2/forecast?limit=1&lat=' +  String(this.listOfItems[this.selectedItem].latitude) + '&lon=' + String(this.listOfItems[this.selectedItem].longitude),
         method: "GET",
@@ -134,6 +132,8 @@ import * as ApplicationSettings from "application-settings";
         }).then(
         (response) => {
         this.weather = response.content.toJSON();
+        this.imagePath = '~/res/' + String(this.weather.fact.condition) + '.png';
+        console.log(`Путь изображения: ${this.imagePath}`)
         ApplicationSettings.setString('weather', JSON.stringify(this.weather.fact));        
         console.log(`Сохранено как: ${JSON.stringify(this.weather)}`)
       });
@@ -166,8 +166,7 @@ import * as ApplicationSettings from "application-settings";
   border-radius: 40%;
 }
 .img{
-  position: center;
-  margin: 50px 30% ;
+  margin: 50px 32%;
 }
 .text{
     margin: 50px auto;
