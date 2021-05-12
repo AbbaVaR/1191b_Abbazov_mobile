@@ -27,10 +27,10 @@ import { Mediafilepicker } from 'nativescript-mediafilepicker';
               multipleSelection: false,
           }
         },
-        url: 'http://192.168.1.50:8000/file',
+        url: 'http://192.168.18.76:8000/file',
         docxFile: new Object(),
         binaryDocx: {},
-        binary:[]
+        binary:[],
       }
     },
     methods: {
@@ -38,10 +38,19 @@ import { Mediafilepicker } from 'nativescript-mediafilepicker';
         let mediafilepicker = new Mediafilepicker(); 
         mediafilepicker.openFilePicker(this.options);
 
-        mediafilepicker.on("getFiles", function (res) {
+        mediafilepicker.on("getFiles", (res) => {
           this.files = res.object.get('results');
           console.log(`Path: ${this.files[0].file}`);
-         //this.prepareFile();
+          this.prepareFile();           
+        });
+
+        mediafilepicker.on("error", function (res) {
+            let msg = res.object.get('msg');
+            console.log(msg);
+        });
+        
+      },
+      prepareFile(){
           try{
             this.docxFile = fs.File.fromPath(this.files[0].file);
             console.log(`Docx: ${this.docxFile}`)
@@ -52,32 +61,9 @@ import { Mediafilepicker } from 'nativescript-mediafilepicker';
           this.binaryDocx = this.docxFile.readSync((err) => {
               console.log(`Error #2 ${err}`);
           });
-          // this.binary = Buffer.from(fs.File.fromPath(this.files[0].file).readSync());
-          // this.binary = this.binary.values();
-          // this.binary = this.binary.join();
-          console.log(`Binary: ${(this.binaryDocx)}`) ;
-          console.log(`Json: ${ JSON.stringify({'file' : this.binaryDocx})}`);               
-        });
-
-        mediafilepicker.on("error", function (res) {
-            let msg = res.object.get('msg');
-            console.log(msg);
-        });
+          console.log(`Binary: ${(this.binaryDocx)}`)            
       },
-      // prepareFile(){
-      //     try{
-      //       this.docxFile = fs.File.fromPath(this.file[0].file);
-      //       console.log(`Docx: ${this.docxFile}`)
-      //     }
-      //     catch(err){
-      //       console.log(`Error #1 ${err}`)
-      //     }
-      //     this.binaryDocx = this.docxFile.readSync((err) => {
-      //         console.log(`Error #2 ${err}`);
-      //     });
-      //     console.log(`Binary: ${typeof String(this.binaryDocx)}`)        
-        
-      // },
+
       request(){
         console.log(`@@@ Get POST request`);
         Http.request({
