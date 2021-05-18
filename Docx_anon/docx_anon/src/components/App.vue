@@ -2,7 +2,7 @@
     <Page actionBarHidden="true">
       <StackLayout>
         <button @tap='pickFile'> check </button>
-        <button @tap='request'> post </button>
+        <button @tap='requestt'> post </button>
 
       </StackLayout>
     </Page>
@@ -10,10 +10,9 @@
 
 <script >
 import { knownFolders, Folder, File } from "tns-core-modules/file-system";
-import { Http, HttpResponse } from "@nativescript/core";
+//import { Http, HttpResponse } from "@nativescript/core";
 import { Mediafilepicker } from 'nativescript-mediafilepicker';
-import ApiClient from "nativescript-apiclient";
-
+import Http from '@billow/nsv-http'
 
   export default {
     data() {
@@ -34,6 +33,7 @@ import ApiClient from "nativescript-apiclient";
         Docx: {},
       }
     },
+    
     methods: {
       pickFile(){ 
         let mediafilepicker = new Mediafilepicker(); 
@@ -63,21 +63,28 @@ import ApiClient from "nativescript-apiclient";
           console.log(`File: ${(this.Docx)}`);
       },
 
-      request(){
-        console.log(`@@@ Get POST request ${JSON.stringify(this.Docx)}`);
-        Http.request({
-          url: this.url,
-          method: "POST",
-          content: JSON.stringify(this.Docx),
-        }).then(
-          (response) => {
-            let result = response.content.toJSON();
-            console.log(`Http POST Result: ${response.statusCode}`)
-          },
-          (e) => {console.log(`Error #3: ${e}`)}
-        );        
+      // request(){
+      //   console.log(`@@@ Get POST request ${JSON.stringify(this.Docx)}`);
+      //   Http.request({
+      //     url: this.url,
+      //     method: "POST",
+      //     content: {'file': File.fromPath(this.files[0].file).readSync()},
+      //   }).then(
+      //     (response) => {
+      //       let result = response.content.toJSON();
+      //       console.log(`Http POST Result: ${response.content}`)
+      //     },
+      //     (e) => {console.log(`Error #3: ${e}`)}
+      //   );        
+      // },
+      requestt(){
+        new Http({ baseUrl: 'http://192.168.1.125:8000', headers: {}}).post('/file', {'file': File.fromPath(this.files[0].file).readSync() }, 
+        content => {
+              console.log(`It's work: ${content}`)
+            }, error => {
+              console.log(`Request error: ${error}`)
+            })
       },
-      requestt
 
     }  
   }
