@@ -1,23 +1,32 @@
 <template>
     <Page actionBarHidden="true">
-      <StackLayout>
-        <button @tap='pickFile'> check </button>
-        <button @tap='requestt'> post </button>
-
+      <StackLayout >
+        <button class='btn first-btn' @tap='pickFile'> Выбрать файл </button>
+        <button class='btn' :isEnabled='flagPick' @tap='request'> Загрузить файл </button>
+        <button class='btn' :isEnabled='flagTake' @tap='request'> Получить файл </button>
+        <GridLayout class="actionMenu" columns="*, *">
+              <Button class='btn' @tap='goToList' text="Документы" col="0"/>
+              <Button class='btn' @tap='goToSetting' text="Настройки" col="1"/> 
+        </GridLayout>
       </StackLayout>
     </Page>
 </template>
 
 <script >
-import { knownFolders, Folder, File } from "tns-core-modules/file-system";
-//import { Http, HttpResponse } from "@nativescript/core";
-import { Mediafilepicker } from 'nativescript-mediafilepicker';
-import Http from '@billow/nsv-http'
+import { File } from "tns-core-modules/file-system";
+import { openFilePicker } from 'nativescript-simple-filepicker';
+import { Http, HttpResponse } from '@nativescript/core'
+import SettingPage from "./SettingPage"
+import ListPage from"./ListPage"
 
   export default {
+  components: { 
+    SettingPage,
+    ListPage
+   },
     data() {
       return {
-        files: [],
+        files: '',
         options: {
           android: {
               extensions: ['docx'],
@@ -29,31 +38,37 @@ import Http from '@billow/nsv-http'
           }
         },
         url: 'http://192.168.1.125:8000/file',
-        docxFile: new Object(),
+        name : '',
+        docxFile: {},
         Docx: {},
+        flagPick : false,
+        flagTake : false,
       }
     },
     
     methods: {
       pickFile(){ 
-        let mediafilepicker = new Mediafilepicker(); 
-        mediafilepicker.openFilePicker(this.options);
-
-        mediafilepicker.on("getFiles", (res) => {
-          this.files = res.object.get('results');
-          console.log(`Path: ${this.files[0].file}`);
-          this.prepareFile();           
+        openFilePicker({
+        }).then((data) => {
+            this.files = data.files[0];
+            console.log(`Path: ${this.files}`)
+            if (this.files.slice(-4) == 'docx'){
+              this.name = this.files.split('/').pop();
+              console.log(`File name: ${this.name}`)
+              this.flagPick = true;
+              this.prepareFile();
+            }
+            else{
+              alert({ 
+                title: "Внимание",
+                message: "Необходимы файлы с раширением .docx",
+                okButtonText: "OK"})
+            }
         });
-
-        mediafilepicker.on("error", function (res) {
-            let msg = res.object.get('msg');
-            console.log(msg);
-        });
-        
       },
       prepareFile(){
           try{
-            this.docxFile = File.fromPath(this.files[0].file);
+            this.docxFile = File.fromPath(this.files);
             console.log(`Docx: ${this.docxFile}`)
           }
           catch(err){
@@ -63,33 +78,26 @@ import Http from '@billow/nsv-http'
           console.log(`File: ${(this.Docx)}`);
       },
 
-      // request(){
-      //   console.log(`@@@ Get POST request ${JSON.stringify(this.Docx)}`);
-      //   Http.request({
-      //     url: this.url,
-      //     method: "POST",
-      //     content: {'file': File.fromPath(this.files[0].file).readSync()},
-      //   }).then(
-      //     (response) => {
-      //       let result = response.content.toJSON();
-      //       console.log(`Http POST Result: ${response.content}`)
-      //     },
-      //     (e) => {console.log(`Error #3: ${e}`)}
-      //   );        
-      // },
-      requestt(){
-        new Http({ baseUrl: 'http://192.168.1.125:8000', headers: {}}).post('/file', {'file': File.fromPath(this.files[0].file).readSync() }, 
-        content => {
-              console.log(`It's work: ${content}`)
-            }, error => {
-              console.log(`Request error: ${error}`)
-            })
+      request(){
+        console.log(`Get POST request`)
+        Http.request({
+          url: this.url,
+          method: "POST",
+          content: {'file': File.fromPath(this.files).readSync()},
+        }).then(
+          (response) => {
+            console.log(`Http POST Result: ${response.statusCode}`)
+            console.log(`Http POST Result: ${response.content}`)
+          }, 
+          (e) => {console.log(`Error #3: ${e}`)}
+        );  
       },
-
+      goToSetting(){
+        this.$navigateTo(SettingPage)
+      },
+      goToList(){
+        this.$navigateTo(ListPage)
+      },
     }  
   }
 </script>
-
-<style scoped>
-
-</style>

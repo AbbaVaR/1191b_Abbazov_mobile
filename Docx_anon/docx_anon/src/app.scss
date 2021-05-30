@@ -1,9 +1,36 @@
 // NativeScript core theme
 // @see https://docs.nativescript.org/ui/theme
 @import '~@nativescript/theme/core';
-@import '~@nativescript/theme/grey';
+//@import '~@nativescript/theme/grey';
 
 // Override variables here
 
 // Global SCSS styling
 // @see https://docs.nativescript.org/ui/styling
+.btn{
+    background-color: #e27d01;
+    border-radius: 10%;
+    color: #ffffff;
+    margin: 30px 10px;
+  }
+.btn:active {
+background-color: #696969;
+}
+.label-text{
+    margin: 30px 20px;
+    background-color: #424242;
+    border-radius: 10%;
+    text-align: center;
+    font-size: 30%;
+  }
+
+.input{
+    background-color: #FF8C00;
+    border-radius: 10%;
+    margin: 50px 30px;
+    text-align: center;
+    font-size: 30%;
+}
+.first-btn{
+    margin-top: 500px;
+}
