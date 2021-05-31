@@ -3,7 +3,7 @@
       <StackLayout >
         <button class='btn first-btn' @tap='pickFile'> Выбрать файл </button>
         <button class='btn' :isEnabled='flagPick' @tap='request'> Загрузить файл </button>
-        <button class='btn' :isEnabled='flagTake' @tap='request'> Получить файл </button>
+        <button class='btn' :isEnabled='flagTake' @tap='download'> Получить файл </button>
         <GridLayout class="actionMenu" columns="*, *">
               <Button class='btn' @tap='goToList' text="Документы" col="0"/>
               <Button class='btn' @tap='goToSetting' text="Настройки" col="1"/> 
@@ -14,8 +14,10 @@
 
 <script >
 import { File } from "tns-core-modules/file-system";
-import { openFilePicker } from 'nativescript-simple-filepicker';
+import { Utils } from "@nativescript/core";
 import { Http, HttpResponse } from '@nativescript/core'
+import * as ApplicationSettings from "application-settings";
+import { openFilePicker } from 'nativescript-simple-filepicker';
 import SettingPage from "./SettingPage"
 import ListPage from"./ListPage"
 
@@ -27,25 +29,27 @@ import ListPage from"./ListPage"
     data() {
       return {
         files: '',
-        options: {
-          android: {
-              extensions: ['docx'],
-              maxNumberFiles: 1
-          },
-          ios: {
-              extensions: ['docx'],
-              multipleSelection: false,
-          }
-        },
-        url: 'http://192.168.1.125:8000/file',
+        downloadUrl: '',
         name : '',
         docxFile: {},
         Docx: {},
         flagPick : false,
-        flagTake : false,
+        flagTake : true,
+        responseContent : '',
+        documents : [
+          {
+            id: Math.random(),
+            name : 'test',
+            path : '/test'
+          }
+        ]
       }
     },
-    
+    mounted(){
+      if(ApplicationSettings.getString('documents')){
+        this.documents=Object.values(JSON.parse(ApplicationSettings.getString('documents')));
+      }
+    },
     methods: {
       pickFile(){ 
         openFilePicker({
@@ -81,17 +85,32 @@ import ListPage from"./ListPage"
       request(){
         console.log(`Get POST request`)
         Http.request({
-          url: this.url,
+          url: this.$url * '/file',
           method: "POST",
-          content: {'file': File.fromPath(this.files).readSync()},
+          content: {'file': java.nio.file.Files.readAllBytes(this.files).join()},
         }).then(
           (response) => {
             console.log(`Http POST Result: ${response.statusCode}`)
             console.log(`Http POST Result: ${response.content}`)
+            this.flagPick = false;
+            this.flagTake = true;
           }, 
           (e) => {console.log(`Error #3: ${e}`)}
         );  
       },
+
+      download(){
+        this.downloadUrl = this.$url +'/download/' + this.responseContent
+        this.flagTake = false;
+        this.documents.push({
+          id: Math.random(),
+          name : this.name,
+          path : '/storage/emulated/0/Download/' + this.downloadUrl.split('/').pop() 
+        });
+        ApplicationSettings.setString('documents', JSON.stringify(Object.assign({}, this.documents)));
+        Utils.openUrl(this.downloadUrl);
+      },
+
       goToSetting(){
         this.$navigateTo(SettingPage)
       },

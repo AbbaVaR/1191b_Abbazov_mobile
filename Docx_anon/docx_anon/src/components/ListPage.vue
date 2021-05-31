@@ -4,7 +4,10 @@
       <ScrollView orientation="horizontal">
         <ListView for="document in documents">
           <v-template>
-            <label class='label-text'  textWrap="true" @tap='openDocx(document.path)'>{{document.name}}</label>
+            <GridLayout columns="*, 70">
+              <label class='label-text' col="0" textWrap="true" @tap="openDocx(document.path)">{{document.name}}</label>
+              <Button  class="btn " text="X" @tap="remove(document.id)" col="1"/>
+            </GridLayout>
           </v-template>
         </ListView>
       </ScrollView>
@@ -13,27 +16,31 @@
 </template>
 
 <script>
+import * as ApplicationSettings from "application-settings";
 
 export default {
   data() {
-    return {
-        documents : [{
-        id : Math.random(),
-        name : 'text.docx',
-        path : '/storage/emulated/0/Documents/text.docx' 
-      }]
+    return {  
+        
     }
   },
    methods: {
      openDocx(path){
-       try {
-            let intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
-            intent.setDataAndType(android.net.Uri.fromFile(new java.io.File(path)), "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-            application.android.currentContext.startActivity(android.content.Intent.createChooser(intent, "Open File..."));
-        }
-        catch (e) {
-            console.log(e);
-        }
+       try
+      {
+          let intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+          intent.setDataAndType(android.net.Uri.fromFile(new java.io.File(path)), "application/msword");
+          application.android.context.startActivity(android.content.Intent.createChooser(intent, "Open ..."));
+      }
+      catch (e)
+      {
+          console.log(e);
+      }
+
+    },
+     remove (id) {
+      this.$documents = this.$documents.filter(task => task.id !== id);
+      ApplicationSettings.setString('documents', JSON.stringify(Object.assign({}, this.$documents)));
     },
    }
 }
