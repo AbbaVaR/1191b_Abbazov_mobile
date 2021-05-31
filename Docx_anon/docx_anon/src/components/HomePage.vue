@@ -29,25 +29,19 @@ import ListPage from"./ListPage"
     data() {
       return {
         files: '',
+        url : this.$store.state.url,
         downloadUrl: '',
         name : '',
         docxFile: {},
         Docx: {},
         flagPick : false,
-        flagTake : true,
+        flagTake : false,
         responseContent : '',
-        documents : [
-          {
-            id: Math.random(),
-            name : 'test',
-            path : '/test'
-          }
-        ]
       }
     },
     mounted(){
       if(ApplicationSettings.getString('documents')){
-        this.documents=Object.values(JSON.parse(ApplicationSettings.getString('documents')));
+        this.loadDocList();
       }
     },
     methods: {
@@ -85,7 +79,7 @@ import ListPage from"./ListPage"
       request(){
         console.log(`Get POST request`)
         Http.request({
-          url: this.$url * '/file',
+          url: this.url + '/file',
           method: "POST",
           content: {'file': java.nio.file.Files.readAllBytes(this.files).join()},
         }).then(
@@ -102,13 +96,22 @@ import ListPage from"./ListPage"
       download(){
         this.downloadUrl = this.$url +'/download/' + this.responseContent
         this.flagTake = false;
-        this.documents.push({
+        this.addDocList();
+        ApplicationSettings.setString('documents', JSON.stringify(Object.assign({}, this.documents)));
+        Utils.openUrl(this.downloadUrl);
+      },
+
+      addDocList(){
+        let newItem = {
           id: Math.random(),
           name : this.name,
           path : '/storage/emulated/0/Download/' + this.downloadUrl.split('/').pop() 
-        });
-        ApplicationSettings.setString('documents', JSON.stringify(Object.assign({}, this.documents)));
-        Utils.openUrl(this.downloadUrl);
+        }
+       this.$store.commit('addDoc', newItem);
+        ApplicationSettings.setString('documents', JSON.stringify(Object.assign({}, this.$store.state.documents)));
+      },
+      loadDocList(){
+        this.$store.commit('addDoc', Object.values(JSON.parse(ApplicationSettings.getString('documents'))));
       },
 
       goToSetting(){
