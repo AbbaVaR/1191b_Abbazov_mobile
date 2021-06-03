@@ -20,6 +20,9 @@ import * as ApplicationSettings from "application-settings";
 import { openFilePicker } from 'nativescript-simple-filepicker';
 import SettingPage from "./SettingPage"
 import ListPage from"./ListPage"
+import uploadFile from "./http-file-sender";
+import filePicker from "./file-picker";
+
 
   export default {
   components: { 
@@ -46,23 +49,33 @@ import ListPage from"./ListPage"
     },
     methods: {
       pickFile(){ 
-        openFilePicker({
-        }).then((data) => {
-            this.files = data.files[0];
-            console.log(`Path: ${this.files}`)
-            if (this.files.slice(-4) == 'docx'){
-              this.name = this.files.split('/').pop();
-              console.log(`File name: ${this.name}`)
-              this.flagPick = true;
-              this.prepareFile();
-            }
-            else{
-              alert({ 
-                title: "Внимание",
-                message: "Необходимы файлы с раширением .docx",
-                okButtonText: "OK"})
-            }
-        });
+        filePicker()
+          .then((r) => {
+            const filePath = r.results[0];
+            console.log("file object", filePath);
+            uploadFile(
+              filePath.file,
+              `${this.url}/file`
+            )
+              .then((data) => {
+                const messageData = JSON.parse(data);
+                const message = messageData.message;
+                console.log("success", messageData);
+                this.addMessageToList(message);
+              })
+              .catch((e) => {
+                console.log("component error", e);
+                if (e.responseCode == 422) {
+                  alert({title: "Ошибка",message: "Ошибка проверки файла!", okButtonText: "OK"});
+                } else {
+                  alert({title: "Ошибка",message: "При загрузке файла произошла ошибка", okButtonText: "OK"});
+                }
+              })
+          })
+          .catch((e) => {
+            console.log(e.type);
+            console.log(e.msg);
+          }); 
       },
       prepareFile(){
           try{
