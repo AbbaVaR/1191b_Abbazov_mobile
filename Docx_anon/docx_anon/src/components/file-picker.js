@@ -3,7 +3,7 @@ import { Mediafilepicker,} from "nativescript-mediafilepicker";
 const filePicker = () => {
   let options = {
     android: {
-      extensions: ['docx',],
+      extensions: ['zip',],
       maxNumberFiles: 1
     },
     ios: {

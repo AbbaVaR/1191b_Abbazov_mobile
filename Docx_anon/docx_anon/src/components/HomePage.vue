@@ -31,7 +31,7 @@ import filePicker from "./file-picker";
    },
     data() {
       return {
-        files: '',
+        files: {},
         url : this.$store.state.url,
         downloadUrl: '',
         name : '',
@@ -51,32 +51,34 @@ import filePicker from "./file-picker";
       pickFile(){ 
         filePicker()
           .then((r) => {
-            const filePath = r.results[0];
-            console.log("file object", filePath);
-            uploadFile(
-              filePath.file,
-              `${this.url}/file`
-            )
-              .then((data) => {
-                const messageData = JSON.parse(data);
-                const message = messageData.message;
-                console.log("success", messageData);
-                this.addMessageToList(message);
-              })
-              .catch((e) => {
-                console.log("component error", e);
-                if (e.responseCode == 422) {
-                  alert({title: "Ошибка",message: "Ошибка проверки файла!", okButtonText: "OK"});
-                } else {
-                  alert({title: "Ошибка",message: "При загрузке файла произошла ошибка", okButtonText: "OK"});
-                }
-              })
-          })
-          .catch((e) => {
-            console.log(e.type);
-            console.log(e.msg);
+            this.files = r.results[0];
+            console.log("file object", this.files);
+            this.flagPick = true;
+          //   uploadFile(
+          //     this.files.file,
+          //     this.$store.state.url
+          //   )
+          //     .then((data) => {
+          //       const messageData = JSON.parse(data);
+          //       const message = messageData.message;
+          //       console.log("success", messageData);
+          //       this.addMessageToList(message);
+          //     })
+          //     .catch((e) => {
+          //       console.log("component error", e);
+          //       if (e.responseCode == 422) {
+          //         alert({title: "Ошибка",message: "Ошибка проверки файла!", okButtonText: "OK"});
+          //       } else {
+          //         alert({title: "Ошибка",message: "При загрузке файла произошла ошибка", okButtonText: "OK"});
+          //       }
+          //     })
+          // })
+          // .catch((e) => {
+          //   console.log(e.type);
+          //   console.log(e.msg);
           }); 
       },
+
       prepareFile(){
           try{
             this.docxFile = File.fromPath(this.files);
@@ -94,7 +96,7 @@ import filePicker from "./file-picker";
         Http.request({
           url: this.url + '/file',
           method: "POST",
-          content: {'file': java.nio.file.Files.readAllBytes(this.files).join()},
+          content: File.fromPath(this.files.file).readSync(),
         }).then(
           (response) => {
             console.log(`Http POST Result: ${response.statusCode}`)

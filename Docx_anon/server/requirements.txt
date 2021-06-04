@@ -1,0 +1,8 @@
+flask
+python-multipart
+aiofiles
+uvicorn
+jinja2
+python-docx
+natasha
+phonenumbers
