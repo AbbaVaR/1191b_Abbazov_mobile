@@ -1,10 +1,7 @@
 import * as bgHttp from "@nativescript/background-http";
 
 // https://www.npmjs.com/package/@nativescript/background-http
-// В случае возникновения проблем в ios https://github.com/jibon57/nativescript-mediafilepicker/issues/56
-/*
-  Отправляем файл локальный и получаем его путь на сервере
-*/
+
 const uploadFileAndGetDataFromServer = (
   localPath,
   url,
@@ -33,15 +30,9 @@ const uploadFileAndGetDataFromServer = (
     ];
 
     let task = session.multipartUpload(uploadParams, request);
-    //let task = session.uploadFile(file, request);
     task.on("responded", r => {
       resolve(r.data);
     });
-
-    function progressHandler(e) {
-      console.log("uploaded " + e.currentBytes + " / " + e.totalBytes);
-    }
-    task.on("progress", progressHandler);
 
     task.on("error", e => {
       reject(e);
