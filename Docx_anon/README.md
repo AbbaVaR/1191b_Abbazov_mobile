@@ -1,0 +1,7 @@
+- docx_anon - мобилное приложение
+    - ./src/components/HomePage.vue - стартовая страница приложения 
+    - ./src/components/SettingPage.vue - страница настроек, возможно задать адрес сервера
+    - ./src/components/http-file-sender.js - скрипт отправки на сервер
+- server - серверная часть
+    - main.py - API
+    - anonymizer.py - скрипт анонимизации документов
