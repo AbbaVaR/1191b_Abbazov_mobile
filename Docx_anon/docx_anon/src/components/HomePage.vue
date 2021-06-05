@@ -13,9 +13,7 @@
 </template>
 
 <script >
-import { File } from "tns-core-modules/file-system";
 import { Utils } from "@nativescript/core";
-import { Http, HttpResponse } from '@nativescript/core'
 import * as ApplicationSettings from "application-settings";
 import { openFilePicker } from 'nativescript-simple-filepicker';
 import SettingPage from "./SettingPage"
@@ -45,7 +43,10 @@ import filePicker from "./file-picker";
     },
     mounted(){
       if(ApplicationSettings.getString('documents')){
-        this.loadDocList();
+        this.$store.commit('loadDoc', Object.values(JSON.parse(ApplicationSettings.getString('documents'))));
+      }
+      if(ApplicationSettings.getString('url')){
+       this.$store.commit('changeUrl', ApplicationSettings.getString('url'));
       }
     },
     methods: {
@@ -84,11 +85,11 @@ import filePicker from "./file-picker";
       },
 
       download(){
-        const downloadUrl = `${this.$store.state.url}/download/${this.toLoad}`;
+        this.downloadUrl = `${this.$store.state.url}/download/${this.toLoad}`;
         this.flagTake = false;
         this.addDocList();
         ApplicationSettings.setString('documents', JSON.stringify(Object.assign({}, this.documents)));
-        Utils.openUrl(downloadUrl);
+        Utils.openUrl(this.downloadUrl);
       },
 
       addDocList(){
@@ -99,9 +100,6 @@ import filePicker from "./file-picker";
         }
        this.$store.commit('addDoc', newItem);
         ApplicationSettings.setString('documents', JSON.stringify(Object.assign({}, this.$store.state.documents)));
-      },
-      loadDocList(){
-        this.$store.commit('addDoc', Object.values(JSON.parse(ApplicationSettings.getString('documents'))));
       },
 
       goToSetting(){

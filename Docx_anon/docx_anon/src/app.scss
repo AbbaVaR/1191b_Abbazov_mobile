@@ -12,6 +12,7 @@
     border-radius: 10%;
     color: #ffffff;
     margin: 30px 10px;
+    text-align: center
   }
 .btn:active {
 background-color: #696969;
@@ -33,4 +34,8 @@ background-color: #696969;
 }
 .first-btn{
     margin-top: 500px;
+}
+
+.center-text{
+  text-align: center
 }

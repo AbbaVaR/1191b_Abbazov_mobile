@@ -1,18 +1,18 @@
 <template>
-  <Page actionBarHidden="true">
+  <Page  @loaded='onLoad' actionBarHidden="true">
     <StackLayout>
-      <label class='label-text'  style="background-color: #FF8C00" textWrap="true"> История: </label>
+      <label class='label-text center-text'  style="background-color: #FF8C00;" textWrap="true"> История: </label>
       <ScrollView orientation="horizontal">
-        <ListView for="document in documents">
+        <ListView for="document in $store.state.documents">
           <v-template>
-            <GridLayout columns="280%, 100%" rows="*, *">
-              <label class='label-text' row="0" col="0" textWrap="true">Файл: {{document.name}}</label>
-              <label class='label-text' row="1" col="0" textWrap="true">Путь: {{document.path}}</label>
-              <Button  class="btn " text="X" @tap="remove(document.id)" col="1" rowSpan="2"/>
-            </GridLayout>
+              <StackLayout>
+                <label class='label-text' textWrap="true" :text="document.name"></label>
+                <label class='label-text' textWrap="true" :text="document.path"></label>
+              </StackLayout>
           </v-template>
         </ListView>
       </ScrollView>
+      <Button  class="btn" text="Удалить историю" @tap="remove" />
     </StackLayout>
   </Page>
 </template>
@@ -27,9 +27,14 @@ export default {
     }
   },
    methods: {
-     remove (id) {
-      this.documents = this.documents.filter(document => document.id !== id);
-      ApplicationSettings.setString('documents', JSON.stringify(Object.assign({}, this.documents)));
+     onLoad(){
+       console.log('Load history')
+        this.documents = this.$store.state.documents;
+     },
+     remove () {
+      this.$store.commit('delDoc')
+      ApplicationSettings.setString('documents', JSON.stringify(Object.assign({}, this.$store.state.documents)));
+      this.documents = this.$store.state.documents;
     },
    }
 }
