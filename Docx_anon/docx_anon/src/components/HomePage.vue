@@ -33,6 +33,7 @@ import filePicker from "./file-picker";
       return {
         files: {},
         url : this.$store.state.url,
+        toLoad : '',
         downloadUrl: '',
         name : '',
         docxFile: {},
@@ -54,72 +55,46 @@ import filePicker from "./file-picker";
             this.files = r.results[0];
             console.log("file object", this.files);
             this.flagPick = true;
-          //   uploadFile(
-          //     this.files.file,
-          //     this.$store.state.url
-          //   )
-          //     .then((data) => {
-          //       const messageData = JSON.parse(data);
-          //       const message = messageData.message;
-          //       console.log("success", messageData);
-          //       this.addMessageToList(message);
-          //     })
-          //     .catch((e) => {
-          //       console.log("component error", e);
-          //       if (e.responseCode == 422) {
-          //         alert({title: "Ошибка",message: "Ошибка проверки файла!", okButtonText: "OK"});
-          //       } else {
-          //         alert({title: "Ошибка",message: "При загрузке файла произошла ошибка", okButtonText: "OK"});
-          //       }
-          //     })
-          // })
-          // .catch((e) => {
-          //   console.log(e.type);
-          //   console.log(e.msg);
+          })
+          .catch((e) => {
+            console.log(e.type);
+            console.log(e.msg);
           }); 
       },
 
-      prepareFile(){
-          try{
-            this.docxFile = File.fromPath(this.files);
-            console.log(`Docx: ${this.docxFile}`)
-          }
-          catch(err){
-            console.log(`Error #1 ${err}`)
-          }
-          this.Docx = this.docxFile.readSync();
-          console.log(`File: ${(this.Docx)}`);
-      },
-
       request(){
-        console.log(`Get POST request`)
-        Http.request({
-          url: this.url + '/file',
-          method: "POST",
-          content: File.fromPath(this.files.file).readSync(),
-        }).then(
-          (response) => {
-            console.log(`Http POST Result: ${response.statusCode}`)
-            console.log(`Http POST Result: ${response.content}`)
-            this.flagPick = false;
-            this.flagTake = true;
-          }, 
-          (e) => {console.log(`Error #3: ${e}`)}
-        );  
+        uploadFile(
+              this.files.file,
+              `${this.$store.state.url}/file`
+            )
+              .then((data) => {
+                this.toLoad = JSON.parse(data);
+                this.flagTake = true;
+                alert({title: "Загржен",message: "Файл готов к получению", okButtonText: "OK"});
+                console.log("success", this.toLoad );
+              })
+              .catch((e) => {
+                console.log("component error", e);
+                if (e.responseCode == 422) {
+                  alert({title: "Ошибка",message: "Ошибка проверки файла!", okButtonText: "OK"});
+                } else {
+                  alert({title: "Ошибка",message: "При загрузке файла произошла ошибка", okButtonText: "OK"});
+                }
+              })
       },
 
       download(){
-        this.downloadUrl = this.$url +'/download/' + this.responseContent
+        const downloadUrl = `${this.$store.state.url}/download/${this.toLoad}`;
         this.flagTake = false;
         this.addDocList();
         ApplicationSettings.setString('documents', JSON.stringify(Object.assign({}, this.documents)));
-        Utils.openUrl(this.downloadUrl);
+        Utils.openUrl(downloadUrl);
       },
 
       addDocList(){
         let newItem = {
           id: Math.random(),
-          name : this.name,
+          name : this.files.file.split('/').pop(),
           path : '/storage/emulated/0/Download/' + this.downloadUrl.split('/').pop() 
         }
        this.$store.commit('addDoc', newItem);

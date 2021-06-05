@@ -18,7 +18,7 @@ const store = new Vuex.Store({
       path : '/test'
       }
     ],
-    url: 'http://192.168.1.125:8000/'
+    url: 'http://192.168.18.90:8000'
   },
   mutations: {
     addDoc(state, document) {

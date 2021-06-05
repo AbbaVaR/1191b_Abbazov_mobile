@@ -1,49 +1,46 @@
-import os
+from io import BytesIO
 import uuid
-from flask import Flask, request, abort, send_from_directory
-from werkzeug.utils import secure_filename
+from fastapi import (
+    FastAPI,
+    Request,
+    File,
+    UploadFile,
+    HTTPException
+)
+from fastapi.responses import (
+    FileResponse,
+    RedirectResponse
+)
+from fastapi.templating import Jinja2Templates
+import os
 import anonymizer
-import zipfile
+
+app = FastAPI()
+templates = Jinja2Templates(directory='templates')
 
 
-UPLOAD_FOLDER = './temp'
-
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        f = request.files['file']
-        name = secure_filename(f.filename)
-        f.save(name)
-        try:
-            zipfile.ZipFile(name).extractall('./temp')
-        except Exception:
-            return 'file uploaded fail'
-        return 'file uploaded successfully'
+@app.get("/")
+def home(request: Request):
+    return templates.TemplateResponse('index.html', {'request': request})
 
 
-@app.route('/file', methods=['POST'])
-def upload_files():
-    file = request.files['file']
-    filename = secure_filename(file.filename)
-
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    path = '/temp' + filename
+@app.post('/file')
+def _file_upload(file: UploadFile = File(...)):
+    file_in = BytesIO(file.file.read())
     file_uuid = str(uuid.uuid4())
     try:
-        anonymizer.doc_anon(path, file_uuid)
+        anonymizer.doc_anon(file_in,  file_uuid)
     except Exception:
-        abort(422, description='file not valid')
-    return '/download/' + file_uuid
+        raise HTTPException(status_code=400, detail="Incorrect file")
+    return file_uuid
 
 
-@app.route('/download/<string:file>', methods=['GET'])
-def get_language_file(language):
+@app.get("/download/{path}")
+def get_file(path):
     remove_old_files("./temp/")
-    return send_from_directory('./temp/file', language + '.docx')
+    file_name = path + ".docx"
+    file_path = "./temp/" + path + ".docx"
+    return FileResponse(path=file_path, headers={"Content-Disposition": "attachment; filename=" + file_name})
 
 
 def get_files(path):
@@ -56,7 +53,7 @@ def get_files(path):
 
 
 def remove_old_files(path):
-    max_files = 10
+    max_files = 100
     files = get_files(path)
     if len(files) < max_files:
         return
@@ -65,7 +62,3 @@ def remove_old_files(path):
         i += 1
         if i > max_files:
             os.remove(os.path.join(path, f))
-
-
-if __name__ == '__main__':
-    app.run('192.168.1.125', port=8000)

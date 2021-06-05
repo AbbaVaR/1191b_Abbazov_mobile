@@ -25,8 +25,15 @@ const uploadFileAndGetDataFromServer = (
       androidNotificationTitle: "Загрузка файла",
       androidDisplayNotificationProgress: true
     };
+    let uploadParams = [
+      {
+        name: "file",
+        filename: file
+      }
+    ];
 
-    let task = session.uploadFile(file, request);
+    let task = session.multipartUpload(uploadParams, request);
+    //let task = session.uploadFile(file, request);
     task.on("responded", r => {
       resolve(r.data);
     });
